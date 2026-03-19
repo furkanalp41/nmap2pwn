@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GlobalVarsProvider } from './context/GlobalVarsContext';
+import { ExportProvider } from './context/ExportContext';
 import Header from './components/Layout/Header';
 import GlobalVarsPanel from './components/GlobalVars/GlobalVarsPanel';
+import ExportPanel from './components/Export/ExportPanel';
 import Sidebar from './components/Layout/Sidebar';
 import Home from './pages/Home';
 import BrowsePorts from './pages/BrowsePorts';
@@ -14,6 +16,7 @@ export default function App() {
 
   return (
     <GlobalVarsProvider>
+      <ExportProvider>
       <div className="min-h-screen flex flex-col">
         <Toaster
           position="bottom-right"
@@ -69,7 +72,9 @@ export default function App() {
             />
           </Routes>
         </div>
+        <ExportPanel />
       </div>
+      </ExportProvider>
     </GlobalVarsProvider>
   );
 }

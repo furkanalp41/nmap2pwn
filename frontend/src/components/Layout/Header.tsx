@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Terminal, Search, Settings2 } from 'lucide-react';
+import { Terminal, Search, Settings2, FileDown } from 'lucide-react';
 import { useGlobalVars } from '../../context/GlobalVarsContext';
+import { useExport } from '../../context/ExportContext';
 
 interface Props {
   panelOpen: boolean;
@@ -11,6 +12,7 @@ export default function Header({ panelOpen, onTogglePanel }: Props) {
   const location = useLocation();
   const isHome = location.pathname === '/';
   const { hasAnyValue } = useGlobalVars();
+  const { selectedCount } = useExport();
 
   return (
     <header className="border-b border-border-primary bg-bg-card/80 backdrop-blur-sm sticky top-0 z-50">
@@ -62,6 +64,16 @@ export default function Header({ panelOpen, onTogglePanel }: Props) {
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent" />
             )}
           </button>
+
+          {selectedCount > 0 && (
+            <>
+              <div className="w-px h-5 bg-border-primary mx-1" />
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm text-yellow-400 bg-yellow-400/10">
+                <FileDown className="w-3.5 h-3.5" />
+                <span className="font-mono font-bold">{selectedCount}</span>
+              </span>
+            </>
+          )}
         </nav>
       </div>
     </header>

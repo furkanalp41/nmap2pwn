@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    container_name: nmap2pwn-api
+    restart: unless-stopped
+    expose:
+      - "8080"
+
+  frontend:
+    build: ./frontend
+    container_name: nmap2pwn-ui
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

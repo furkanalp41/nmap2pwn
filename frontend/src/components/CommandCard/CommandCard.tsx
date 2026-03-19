@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { useClipboard } from '../../hooks/useClipboard';
 import { useGlobalVars } from '../../context/GlobalVarsContext';
+import { useExport } from '../../context/ExportContext';
 import type { Command } from '../../types';
 
 interface Props {
@@ -42,8 +43,10 @@ function renderCommand(text: string, vars: Record<string, string>) {
 export default function CommandCard({ command, id }: Props) {
   const { copy, copiedId } = useClipboard();
   const { vars } = useGlobalVars();
+  const { toggleCommand, isSelected } = useExport();
   const isCopied = copiedId === id;
   const [expanded, setExpanded] = useState(false);
+  const selected = isSelected(id);
 
   const substitutedCommand = substituteVars(command.command, vars);
 
@@ -51,17 +54,28 @@ export default function CommandCard({ command, id }: Props) {
     <div className="group border border-border-primary rounded-lg bg-bg-card/50 hover:border-border-hover transition-colors">
       {/* Title row */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-primary">
-        <button
-          onClick={() => setExpanded((e) => !e)}
-          className="flex items-center gap-1.5 text-sm text-text-primary font-medium hover:text-accent transition-colors text-left"
-        >
-          {expanded ? (
-            <ChevronUp className="w-3.5 h-3.5 text-text-dim shrink-0" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5 text-text-dim shrink-0" />
-          )}
-          {command.title}
-        </button>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <button
+            onClick={() => toggleCommand(id, command.title, substitutedCommand)}
+            className={`shrink-0 transition-colors ${
+              selected ? 'text-yellow-400' : 'text-text-dim hover:text-yellow-400/70'
+            }`}
+            title={selected ? 'Remove from export' : 'Add to export'}
+          >
+            <Star className="w-3.5 h-3.5" fill={selected ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            onClick={() => setExpanded((e) => !e)}
+            className="flex items-center gap-1.5 text-sm text-text-primary font-medium hover:text-accent transition-colors text-left min-w-0"
+          >
+            {expanded ? (
+              <ChevronUp className="w-3.5 h-3.5 text-text-dim shrink-0" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-text-dim shrink-0" />
+            )}
+            {command.title}
+          </button>
+        </div>
         <button
           onClick={() => copy(substitutedCommand, id)}
           className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-all shrink-0 ${
