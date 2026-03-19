@@ -85,7 +85,7 @@ Paste your scan. Fill in your creds. Copy the command. Pwn the box.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nmap2pwn.git
+git clone https://github.com/furkanalp41/nmap2pwn.git
 cd nmap2pwn
 ```
 
