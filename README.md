@@ -66,13 +66,8 @@ Paste your scan. Fill in your creds. Copy the command. Pwn the box.
 ---
 
 ## Screenshots
-
-> Screenshots coming soon. The UI is a dark, monospace, GTFOBins-style interface.
-
-![Nmap2Pwn — Parse Mode](screenshots/parse-mode.png)
-![Nmap2Pwn — Browse Mode](screenshots/browse-mode.png)
-![Nmap2Pwn — Global Variables](screenshots/global-vars.png)
-
+![Parse Mode](./screenshots/parse-mode.png)
+![Global Variables & Command Cards](./screenshots/command-cards.png)
 ---
 
 ## Installation
