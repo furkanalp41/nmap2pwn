@@ -1,0 +1,51 @@
+{
+  "port": 139,
+  "protocol": "tcp",
+  "service": "NetBIOS-SSN",
+  "description": "NetBIOS Session Service — legacy SMB transport. Port 445 provides the full SMB toolset; these commands target NetBIOS-specific enumeration.",
+  "tools": [
+    {
+      "name": "enum4linux-ng",
+      "description": "NetBIOS and SMB enumeration over port 139.",
+      "commands": [
+        {
+          "title": "Full enumeration (anonymous)",
+          "command": "enum4linux-ng -A {{IP}}",
+          "description": "Run all enumeration modules via NetBIOS (null session)."
+        },
+        {
+          "title": "Full enumeration (authenticated)",
+          "command": "enum4linux-ng -A -u '{{USERNAME}}' -p '{{PASSWORD}}' {{IP}}",
+          "description": "Run all enumeration modules with valid credentials."
+        }
+      ]
+    },
+    {
+      "name": "smbclient (NetBIOS)",
+      "description": "Connect to shares over NetBIOS transport.",
+      "commands": [
+        {
+          "title": "List shares (anonymous via NetBIOS)",
+          "command": "smbclient -L //{{IP}} -N --option='client min protocol=NT1' -p 139",
+          "description": "List shares forcing NetBIOS/SMBv1 transport on port 139."
+        },
+        {
+          "title": "Connect to a share via NetBIOS",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}%{{PASSWORD}}' -p 139",
+          "description": "Interactive session over NetBIOS transport."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — NetBIOS",
+      "description": "SMB enumeration targeting port 139.",
+      "commands": [
+        {
+          "title": "Null session enum (port 139)",
+          "command": "nxc smb {{IP}} --port 139 -u '' -p '' --shares",
+          "description": "Enumerate shares via NetBIOS session service."
+        }
+      ]
+    }
+  ]
+}

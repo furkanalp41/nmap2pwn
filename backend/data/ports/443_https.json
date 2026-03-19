@@ -1,0 +1,103 @@
+{
+  "port": 443,
+  "protocol": "tcp",
+  "service": "HTTPS",
+  "description": "HTTP over TLS — web application enumeration, directory brute-forcing, and vulnerability scanning. Same tools as port 80 with SSL/TLS flags.",
+  "tools": [
+    {
+      "name": "gobuster — Directory Brute-force (HTTPS)",
+      "description": "Brute-force directories and files on HTTPS web servers.",
+      "commands": [
+        {
+          "title": "Directory brute-force (common wordlist)",
+          "command": "gobuster dir -u https://{{IP}} -w /usr/share/wordlists/dirb/common.txt -k",
+          "description": "Brute-force directories using a common wordlist with TLS certificate verification disabled."
+        },
+        {
+          "title": "Directory brute-force (medium wordlist)",
+          "command": "gobuster dir -u https://{{IP}} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -k -t 50",
+          "description": "Brute-force with a medium wordlist and 50 threads."
+        },
+        {
+          "title": "With file extensions",
+          "command": "gobuster dir -u https://{{IP}} -w /usr/share/wordlists/dirb/common.txt -k -x php,asp,aspx,html,txt,bak,old",
+          "description": "Brute-force directories and files with common web extensions."
+        },
+        {
+          "title": "Virtual host brute-force (HTTPS)",
+          "command": "gobuster vhost -u https://{{IP}} -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -k --append-domain",
+          "description": "Brute-force virtual hosts over HTTPS."
+        }
+      ]
+    },
+    {
+      "name": "feroxbuster (HTTPS)",
+      "description": "Fast, recursive content discovery with auto-filtering for HTTPS targets.",
+      "commands": [
+        {
+          "title": "Default scan (HTTPS)",
+          "command": "feroxbuster -u https://{{IP}} -k",
+          "description": "Recursive directory brute-force with insecure TLS."
+        },
+        {
+          "title": "With extensions and depth",
+          "command": "feroxbuster -u https://{{IP}} -k -x php,asp,aspx,html -d 3 -t 50",
+          "description": "Recursive scan with extensions, depth 3, and 50 threads."
+        }
+      ]
+    },
+    {
+      "name": "nikto (HTTPS)",
+      "description": "Web vulnerability scanner for HTTPS targets.",
+      "commands": [
+        {
+          "title": "Default scan (HTTPS)",
+          "command": "nikto -h https://{{IP}} -ssl",
+          "description": "Run default vulnerability scan with SSL enabled."
+        },
+        {
+          "title": "Scan with output file",
+          "command": "nikto -h https://{{IP}} -ssl -o nikto_https_output.txt",
+          "description": "Run scan and save results to a file."
+        }
+      ]
+    },
+    {
+      "name": "sslscan",
+      "description": "SSL/TLS configuration scanner for identifying weak ciphers, protocols, and certificate issues.",
+      "commands": [
+        {
+          "title": "Full SSL/TLS scan",
+          "command": "sslscan {{IP}}",
+          "description": "Enumerate supported SSL/TLS versions, ciphers, and certificate details."
+        },
+        {
+          "title": "Scan specific port",
+          "command": "sslscan {{IP}}:{{PORT}}",
+          "description": "Scan SSL/TLS configuration on a non-standard port."
+        }
+      ]
+    },
+    {
+      "name": "testssl.sh",
+      "description": "Comprehensive SSL/TLS testing tool for checking vulnerabilities like Heartbleed, POODLE, BEAST, etc.",
+      "commands": [
+        {
+          "title": "Full test",
+          "command": "testssl.sh https://{{IP}}",
+          "description": "Run comprehensive SSL/TLS vulnerability tests."
+        },
+        {
+          "title": "Check specific vulnerabilities",
+          "command": "testssl.sh --vulnerable https://{{IP}}",
+          "description": "Check only for known SSL/TLS vulnerabilities."
+        },
+        {
+          "title": "Check ciphers only",
+          "command": "testssl.sh --cipher-per-proto https://{{IP}}",
+          "description": "List supported ciphers per protocol version."
+        }
+      ]
+    }
+  ]
+}

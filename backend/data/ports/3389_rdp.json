@@ -1,0 +1,168 @@
+{
+  "port": 3389,
+  "protocol": "tcp",
+  "service": "RDP",
+  "description": "Remote Desktop Protocol — graphical remote access, pass-the-hash GUI sessions, credential brute-forcing, and drive mounting.",
+  "tools": [
+    {
+      "name": "xfreerdp",
+      "description": "Feature-rich RDP client supporting pass-the-hash, drive redirection, clipboard sharing, and dynamic resolution.",
+      "commands": [
+        {
+          "title": "Standard login with password",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore",
+          "description": "Connect via RDP with password authentication and skip certificate validation."
+        },
+        {
+          "title": "Domain login",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /d:'{{DOMAIN}}' /cert-ignore",
+          "description": "Connect with domain credentials."
+        },
+        {
+          "title": "Pass-the-Hash login",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /pth:'{{HASH}}' /cert-ignore",
+          "description": "Connect via RDP using an NTLM hash (requires Restricted Admin mode enabled on target)."
+        },
+        {
+          "title": "Mount local drive",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore /drive:share,/tmp",
+          "description": "Mount a local directory (/tmp) as a network drive on the remote desktop."
+        },
+        {
+          "title": "Dynamic resolution",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore /dynamic-resolution",
+          "description": "Connect with dynamic resolution that adjusts to window size."
+        },
+        {
+          "title": "Custom resolution",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore /size:1920x1080",
+          "description": "Connect with a specific screen resolution."
+        },
+        {
+          "title": "Fullscreen with clipboard",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore /f /clipboard",
+          "description": "Fullscreen RDP session with clipboard sharing enabled."
+        },
+        {
+          "title": "Full featured connection",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /d:'{{DOMAIN}}' /cert-ignore /dynamic-resolution /clipboard /drive:share,/tmp",
+          "description": "Full-featured connection with domain auth, dynamic resolution, clipboard, and drive mounting."
+        },
+        {
+          "title": "Restricted Admin mode (PtH)",
+          "command": "xfreerdp /v:{{IP}} /u:'{{USERNAME}}' /pth:'{{HASH}}' /cert-ignore /restricted-admin",
+          "description": "PtH with restricted admin mode (no credentials cached on target)."
+        },
+        {
+          "title": "Connect on non-standard port",
+          "command": "xfreerdp /v:{{IP}}:{{PORT}} /u:'{{USERNAME}}' /p:'{{PASSWORD}}' /cert-ignore",
+          "description": "Connect to RDP on a non-standard port."
+        }
+      ]
+    },
+    {
+      "name": "rdesktop",
+      "description": "Lightweight RDP client for quick connections.",
+      "commands": [
+        {
+          "title": "Standard login",
+          "command": "rdesktop -u '{{USERNAME}}' -p '{{PASSWORD}}' {{IP}}",
+          "description": "Connect via RDP with username and password."
+        },
+        {
+          "title": "Domain login",
+          "command": "rdesktop -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' {{IP}}",
+          "description": "Connect with domain credentials."
+        },
+        {
+          "title": "Fullscreen mode",
+          "command": "rdesktop -u '{{USERNAME}}' -p '{{PASSWORD}}' -f {{IP}}",
+          "description": "Connect in fullscreen mode."
+        },
+        {
+          "title": "Share local folder",
+          "command": "rdesktop -u '{{USERNAME}}' -p '{{PASSWORD}}' -r disk:share=/tmp {{IP}}",
+          "description": "Mount a local folder on the remote desktop."
+        }
+      ]
+    },
+    {
+      "name": "crowbar — RDP Brute-force",
+      "description": "Brute-force tool supporting RDP with NLA (Network Level Authentication).",
+      "commands": [
+        {
+          "title": "Single user, single password",
+          "command": "crowbar -b rdp -s {{IP}}/32 -u '{{USERNAME}}' -c '{{PASSWORD}}'",
+          "description": "Test a single credential pair against RDP."
+        },
+        {
+          "title": "Single user, password list",
+          "command": "crowbar -b rdp -s {{IP}}/32 -u '{{USERNAME}}' -C {{WORDLIST}}",
+          "description": "Brute-force RDP with a password list for a single user."
+        },
+        {
+          "title": "User list, single password",
+          "command": "crowbar -b rdp -s {{IP}}/32 -U {{USERLIST}} -c '{{PASSWORD}}'",
+          "description": "Spray a single password against multiple users via RDP."
+        },
+        {
+          "title": "User list, password list",
+          "command": "crowbar -b rdp -s {{IP}}/32 -U {{USERLIST}} -C {{WORDLIST}}",
+          "description": "Full brute-force with user and password lists."
+        }
+      ]
+    },
+    {
+      "name": "hydra — RDP Brute-force",
+      "description": "Fast network brute-forcer supporting RDP protocol.",
+      "commands": [
+        {
+          "title": "Single user with wordlist",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} rdp://{{IP}}",
+          "description": "Brute-force RDP password for a single user."
+        },
+        {
+          "title": "User list with wordlist",
+          "command": "hydra -L {{USERLIST}} -P {{WORDLIST}} rdp://{{IP}}",
+          "description": "Brute-force RDP with user and password lists."
+        },
+        {
+          "title": "Single credential check",
+          "command": "hydra -l '{{USERNAME}}' -p '{{PASSWORD}}' rdp://{{IP}}",
+          "description": "Verify a single RDP credential pair."
+        },
+        {
+          "title": "With verbose output",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} rdp://{{IP}} -V",
+          "description": "Brute-force with verbose output showing each attempt."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — RDP",
+      "description": "RDP credential validation and screenshot capture via NetExec.",
+      "commands": [
+        {
+          "title": "Check RDP access with password",
+          "command": "nxc rdp {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Test if credentials have RDP access."
+        },
+        {
+          "title": "Check RDP access with PtH",
+          "command": "nxc rdp {{IP}} -u '{{USERNAME}}' -H '{{HASH}}'",
+          "description": "Test RDP access using pass-the-hash."
+        },
+        {
+          "title": "RDP screenshot",
+          "command": "nxc rdp {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --screenshot",
+          "description": "Take a screenshot of the RDP session."
+        },
+        {
+          "title": "Check NLA status",
+          "command": "nxc rdp {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --nla-screenshot",
+          "description": "Check NLA (Network Level Authentication) status and take a screenshot."
+        }
+      ]
+    }
+  ]
+}

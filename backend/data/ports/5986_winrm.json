@@ -1,0 +1,40 @@
+{
+  "port": 5986,
+  "protocol": "tcp",
+  "service": "WinRM (HTTPS)",
+  "description": "Windows Remote Management over HTTPS — encrypted remote PowerShell sessions. See port 5985 for the full WinRM toolset.",
+  "tools": [
+    {
+      "name": "evil-winrm (HTTPS)",
+      "description": "Evil-WinRM connections targeting the encrypted WinRM endpoint on port 5986.",
+      "commands": [
+        {
+          "title": "Login with password (SSL)",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -S -P 5986",
+          "description": "Connect over HTTPS/SSL on port 5986."
+        },
+        {
+          "title": "Login with PtH (SSL)",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' -S -P 5986",
+          "description": "Connect over SSL using pass-the-hash."
+        },
+        {
+          "title": "Login with certificate (ADCS)",
+          "command": "evil-winrm -i {{IP}} -c cert.pem -k key.pem -S -P 5986",
+          "description": "Connect using a client certificate and private key (AD CS exploitation)."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — WinRM HTTPS",
+      "description": "WinRM credential validation over HTTPS.",
+      "commands": [
+        {
+          "title": "Check WinRM HTTPS access",
+          "command": "nxc winrm {{IP}} --port 5986 -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Test credentials against the HTTPS WinRM endpoint."
+        }
+      ]
+    }
+  ]
+}

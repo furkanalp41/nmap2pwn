@@ -1,0 +1,80 @@
+{
+  "port": 3268,
+  "protocol": "tcp",
+  "service": "Global Catalog (LDAP)",
+  "description": "LDAP Global Catalog — forest-wide read-only directory. Useful for cross-domain enumeration in multi-domain forests. Port 389 provides the full LDAP toolset for single-domain queries.",
+  "tools": [
+    {
+      "name": "ldapsearch — Global Catalog Queries",
+      "description": "LDAP queries against the Global Catalog for forest-wide enumeration across domain boundaries.",
+      "commands": [
+        {
+          "title": "Discover forest naming contexts",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -s base namingcontexts",
+          "description": "Query the Global Catalog root DSE to discover all domains in the forest."
+        },
+        {
+          "title": "Enumerate all forest users",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user))' sAMAccountName userPrincipalName",
+          "description": "Enumerate all users across all domains in the forest."
+        },
+        {
+          "title": "Enumerate all forest computers",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=computer)' cn dNSHostName operatingSystem",
+          "description": "List all computers across the entire forest."
+        },
+        {
+          "title": "Enumerate all forest groups",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=group)' cn member",
+          "description": "List all groups across the entire forest."
+        },
+        {
+          "title": "Find Enterprise Admins (forest-wide)",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=group)(cn=Enterprise Admins))' member",
+          "description": "Find Enterprise Admins group members via the Global Catalog."
+        },
+        {
+          "title": "Find Schema Admins (forest-wide)",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=group)(cn=Schema Admins))' member",
+          "description": "Find Schema Admins group members via the Global Catalog."
+        },
+        {
+          "title": "Enumerate all domain trusts in forest",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectClass=trustedDomain)' cn trustDirection trustType flatName",
+          "description": "Enumerate all trust relationships across the forest."
+        },
+        {
+          "title": "Find SPNs across forest (Kerberoastable)",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(servicePrincipalName=*))' sAMAccountName servicePrincipalName userPrincipalName",
+          "description": "Find Kerberoastable accounts across all domains in the forest."
+        },
+        {
+          "title": "Find AdminCount=1 across forest",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(adminCount=1))' sAMAccountName userPrincipalName",
+          "description": "Find all protected admin accounts across the entire forest."
+        },
+        {
+          "title": "Anonymous bind — dump GC root",
+          "command": "ldapsearch -x -H ldap://{{IP}}:3268 -s base '(objectClass=*)'",
+          "description": "Attempt anonymous bind against the Global Catalog."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — Global Catalog",
+      "description": "NetExec LDAP queries targeting the Global Catalog port for forest-wide enumeration.",
+      "commands": [
+        {
+          "title": "Authenticated bind to GC",
+          "command": "nxc ldap {{IP}} --port 3268 -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Test credentials against the Global Catalog service."
+        },
+        {
+          "title": "Enumerate users via GC",
+          "command": "nxc ldap {{IP}} --port 3268 -u '{{USERNAME}}' -p '{{PASSWORD}}' --users",
+          "description": "List all users across the forest via the Global Catalog."
+        }
+      ]
+    }
+  ]
+}

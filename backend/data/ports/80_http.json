@@ -1,0 +1,281 @@
+{
+  "port": 80,
+  "protocol": "tcp",
+  "service": "HTTP",
+  "description": "Hypertext Transfer Protocol — web application enumeration, directory brute-forcing, vulnerability scanning, and CMS detection. See port 443 for HTTPS-specific variations.",
+  "tools": [
+    {
+      "name": "gobuster — Directory Brute-force",
+      "description": "Fast directory and file brute-forcing tool using Go routines.",
+      "commands": [
+        {
+          "title": "Directory brute-force (common wordlist)",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt",
+          "description": "Brute-force directories using a common wordlist."
+        },
+        {
+          "title": "Directory brute-force (medium wordlist)",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50",
+          "description": "Brute-force with a medium wordlist and 50 threads."
+        },
+        {
+          "title": "With file extensions",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -x php,asp,aspx,html,txt,bak,old,config",
+          "description": "Brute-force directories and files with common web extensions."
+        },
+        {
+          "title": "Filter by status codes",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -s 200,204,301,302,307",
+          "description": "Only show responses with specific HTTP status codes."
+        },
+        {
+          "title": "With custom headers",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -H 'Authorization: Bearer {{TOKEN}}'",
+          "description": "Brute-force with custom HTTP headers (e.g., auth token)."
+        },
+        {
+          "title": "With cookies",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -c 'session={{COOKIE}}'",
+          "description": "Brute-force with session cookies for authenticated scanning."
+        },
+        {
+          "title": "Save output to file",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -o gobuster_output.txt",
+          "description": "Save results to a file."
+        },
+        {
+          "title": "Brute-force with custom User-Agent",
+          "command": "gobuster dir -u http://{{IP}} -w /usr/share/wordlists/dirb/common.txt -a 'Mozilla/5.0'",
+          "description": "Use a custom User-Agent string to evade basic WAF rules."
+        }
+      ]
+    },
+    {
+      "name": "gobuster — Virtual Host Brute-force",
+      "description": "Discover virtual hosts and subdomains on a web server.",
+      "commands": [
+        {
+          "title": "VHost brute-force",
+          "command": "gobuster vhost -u http://{{IP}} -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain",
+          "description": "Brute-force virtual hosts by sending different Host headers."
+        },
+        {
+          "title": "VHost with custom domain",
+          "command": "gobuster vhost -u http://{{DOMAIN}} -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain",
+          "description": "Brute-force vhosts against a known domain name."
+        }
+      ]
+    },
+    {
+      "name": "gobuster — DNS Subdomain Brute-force",
+      "description": "Brute-force DNS subdomains via DNS queries.",
+      "commands": [
+        {
+          "title": "DNS subdomain brute-force",
+          "command": "gobuster dns -d {{DOMAIN}} -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt",
+          "description": "Brute-force subdomains via DNS resolution."
+        },
+        {
+          "title": "DNS brute-force with custom resolver",
+          "command": "gobuster dns -d {{DOMAIN}} -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-5000.txt -r {{IP}}",
+          "description": "Use a specific DNS resolver for subdomain enumeration."
+        }
+      ]
+    },
+    {
+      "name": "feroxbuster",
+      "description": "Fast, recursive content discovery tool with automatic filtering and smart wordlists.",
+      "commands": [
+        {
+          "title": "Default scan",
+          "command": "feroxbuster -u http://{{IP}}",
+          "description": "Recursive directory brute-force with default settings."
+        },
+        {
+          "title": "With extensions",
+          "command": "feroxbuster -u http://{{IP}} -x php,asp,aspx,html,txt",
+          "description": "Scan with specific file extensions."
+        },
+        {
+          "title": "With custom wordlist",
+          "command": "feroxbuster -u http://{{IP}} -w {{WORDLIST}}",
+          "description": "Use a custom wordlist for scanning."
+        },
+        {
+          "title": "With depth and threads",
+          "command": "feroxbuster -u http://{{IP}} -d 3 -t 50",
+          "description": "Limit recursion depth to 3 with 50 threads."
+        },
+        {
+          "title": "Filter by status code",
+          "command": "feroxbuster -u http://{{IP}} -C 404,403",
+          "description": "Exclude responses with 404 and 403 status codes."
+        },
+        {
+          "title": "With proxy (Burp)",
+          "command": "feroxbuster -u http://{{IP}} --proxy http://127.0.0.1:8080",
+          "description": "Route traffic through Burp Suite proxy for inspection."
+        },
+        {
+          "title": "With headers",
+          "command": "feroxbuster -u http://{{IP}} -H 'Authorization: Bearer {{TOKEN}}'",
+          "description": "Scan with custom HTTP headers."
+        },
+        {
+          "title": "Resume previous scan",
+          "command": "feroxbuster --resume-from ferox-state.json",
+          "description": "Resume a previously interrupted scan from its state file."
+        }
+      ]
+    },
+    {
+      "name": "whatweb",
+      "description": "Web technology fingerprinting tool — identifies CMS, frameworks, plugins, and server software.",
+      "commands": [
+        {
+          "title": "Basic fingerprint",
+          "command": "whatweb http://{{IP}}",
+          "description": "Identify web technologies on the target."
+        },
+        {
+          "title": "Aggressive mode",
+          "command": "whatweb -a 3 http://{{IP}}",
+          "description": "Aggressive scan with more requests for deeper identification."
+        },
+        {
+          "title": "Verbose mode",
+          "command": "whatweb -v http://{{IP}}",
+          "description": "Verbose output with detailed technology information."
+        },
+        {
+          "title": "Scan with custom User-Agent",
+          "command": "whatweb --user-agent 'Mozilla/5.0' http://{{IP}}",
+          "description": "Fingerprint with a custom User-Agent string."
+        }
+      ]
+    },
+    {
+      "name": "nikto",
+      "description": "Web server vulnerability scanner — checks for dangerous files, outdated software, and misconfigurations.",
+      "commands": [
+        {
+          "title": "Default scan",
+          "command": "nikto -h http://{{IP}}",
+          "description": "Run default vulnerability scan against the web server."
+        },
+        {
+          "title": "Scan specific port",
+          "command": "nikto -h {{IP}} -p {{PORT}}",
+          "description": "Scan a web server on a non-standard port."
+        },
+        {
+          "title": "With output file",
+          "command": "nikto -h http://{{IP}} -o nikto_output.txt",
+          "description": "Save scan results to a file."
+        },
+        {
+          "title": "With tuning options",
+          "command": "nikto -h http://{{IP}} -Tuning 123bde",
+          "description": "Run specific test categories (1=files, 2=misconfigs, 3=info disclosure, b=software, d=debug, e=remote)."
+        },
+        {
+          "title": "Through proxy (Burp)",
+          "command": "nikto -h http://{{IP}} -useproxy http://127.0.0.1:8080",
+          "description": "Route nikto traffic through Burp Suite proxy."
+        },
+        {
+          "title": "CGI directories only",
+          "command": "nikto -h http://{{IP}} -Cgidirs all",
+          "description": "Scan all CGI directories for vulnerabilities."
+        }
+      ]
+    },
+    {
+      "name": "wpscan (WordPress)",
+      "description": "WordPress-specific vulnerability scanner and enumerator.",
+      "commands": [
+        {
+          "title": "Enumerate users",
+          "command": "wpscan --url http://{{IP}} -e u",
+          "description": "Enumerate WordPress usernames."
+        },
+        {
+          "title": "Enumerate plugins",
+          "command": "wpscan --url http://{{IP}} -e ap --plugins-detection aggressive",
+          "description": "Enumerate all plugins with aggressive detection."
+        },
+        {
+          "title": "Enumerate themes",
+          "command": "wpscan --url http://{{IP}} -e at",
+          "description": "Enumerate all installed WordPress themes."
+        },
+        {
+          "title": "Full enumeration",
+          "command": "wpscan --url http://{{IP}} -e ap,at,u --plugins-detection aggressive",
+          "description": "Enumerate plugins, themes, and users aggressively."
+        },
+        {
+          "title": "Password brute-force",
+          "command": "wpscan --url http://{{IP}} -U '{{USERNAME}}' -P {{WORDLIST}}",
+          "description": "Brute-force WordPress login for a specific user."
+        },
+        {
+          "title": "With API token (vuln database)",
+          "command": "wpscan --url http://{{IP}} -e ap,at,u --api-token {{API_TOKEN}}",
+          "description": "Full enumeration with WPScan API token for vulnerability database lookups."
+        },
+        {
+          "title": "Enumerate with custom User-Agent",
+          "command": "wpscan --url http://{{IP}} -e ap --ua 'Mozilla/5.0' --random-user-agent",
+          "description": "Scan with randomized User-Agent strings to avoid detection."
+        }
+      ]
+    },
+    {
+      "name": "curl — Manual HTTP Testing",
+      "description": "Versatile command-line HTTP client for manual request crafting and testing.",
+      "commands": [
+        {
+          "title": "GET request with headers",
+          "command": "curl -v http://{{IP}}/",
+          "description": "Send a verbose GET request to inspect headers and response."
+        },
+        {
+          "title": "POST request with data",
+          "command": "curl -X POST http://{{IP}}/login -d 'username={{USERNAME}}&password={{PASSWORD}}'",
+          "description": "Send a POST request with form data."
+        },
+        {
+          "title": "POST JSON data",
+          "command": "curl -X POST http://{{IP}}/api/login -H 'Content-Type: application/json' -d '{\"username\":\"{{USERNAME}}\",\"password\":\"{{PASSWORD}}\"}'",
+          "description": "Send a POST request with JSON payload."
+        },
+        {
+          "title": "Follow redirects",
+          "command": "curl -L http://{{IP}}/",
+          "description": "Follow HTTP redirects to the final destination."
+        },
+        {
+          "title": "With cookies",
+          "command": "curl -b 'session={{COOKIE}}' http://{{IP}}/dashboard",
+          "description": "Send a request with a session cookie."
+        },
+        {
+          "title": "HEAD request",
+          "command": "curl -I http://{{IP}}/",
+          "description": "Send a HEAD request to retrieve only headers."
+        },
+        {
+          "title": "Check HTTP methods (OPTIONS)",
+          "command": "curl -X OPTIONS http://{{IP}}/ -v",
+          "description": "Check which HTTP methods are allowed."
+        },
+        {
+          "title": "Download file",
+          "command": "curl -o output.html http://{{IP}}/{{FILEPATH}}",
+          "description": "Download a file from the web server."
+        }
+      ]
+    }
+  ]
+}

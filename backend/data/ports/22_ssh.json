@@ -1,0 +1,189 @@
+{
+  "port": 22,
+  "protocol": "tcp",
+  "service": "SSH",
+  "description": "Secure Shell — remote access, port forwarding, SOCKS proxying, key-based authentication, and credential brute-forcing.",
+  "tools": [
+    {
+      "name": "ssh (native client)",
+      "description": "Standard OpenSSH client for remote login, tunneling, and command execution.",
+      "commands": [
+        {
+          "title": "Password login",
+          "command": "ssh {{USERNAME}}@{{IP}}",
+          "description": "Connect via SSH with password authentication (prompted)."
+        },
+        {
+          "title": "Key-based login",
+          "command": "ssh -i {{KEY_FILE}} {{USERNAME}}@{{IP}}",
+          "description": "Connect using an SSH private key file."
+        },
+        {
+          "title": "Specific port",
+          "command": "ssh {{USERNAME}}@{{IP}} -p {{PORT}}",
+          "description": "Connect to SSH on a non-standard port."
+        },
+        {
+          "title": "Execute single command",
+          "command": "ssh {{USERNAME}}@{{IP}} 'whoami && id && hostname'",
+          "description": "Execute a command remotely without interactive session."
+        },
+        {
+          "title": "Local port forwarding",
+          "command": "ssh -L {{LOCAL_PORT}}:{{TARGET_IP}}:{{REMOTE_PORT}} {{USERNAME}}@{{IP}} -N",
+          "description": "Forward a local port to a remote host through the SSH tunnel."
+        },
+        {
+          "title": "Remote port forwarding",
+          "command": "ssh -R {{REMOTE_PORT}}:localhost:{{LOCAL_PORT}} {{USERNAME}}@{{IP}} -N",
+          "description": "Expose a local port on the remote server."
+        },
+        {
+          "title": "Dynamic SOCKS proxy",
+          "command": "ssh -D 1080 {{USERNAME}}@{{IP}} -N",
+          "description": "Create a SOCKS5 proxy on local port 1080 (use with proxychains)."
+        },
+        {
+          "title": "ProxyJump (bastion hop)",
+          "command": "ssh -J {{USERNAME}}@{{BASTION_IP}} {{USERNAME}}@{{TARGET_IP}}",
+          "description": "Jump through a bastion/jump host to reach the target."
+        },
+        {
+          "title": "Verbose mode (debugging)",
+          "command": "ssh -vvv {{USERNAME}}@{{IP}}",
+          "description": "Connect with maximum verbosity for debugging auth issues."
+        },
+        {
+          "title": "Force password auth (no key)",
+          "command": "ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no {{USERNAME}}@{{IP}}",
+          "description": "Force password authentication even if keys are available."
+        },
+        {
+          "title": "Ignore host key checking",
+          "command": "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{USERNAME}}@{{IP}}",
+          "description": "Skip host key verification (useful for CTF/lab environments)."
+        }
+      ]
+    },
+    {
+      "name": "sshpass",
+      "description": "Non-interactive SSH password provider for scripting.",
+      "commands": [
+        {
+          "title": "Login with password (non-interactive)",
+          "command": "sshpass -p '{{PASSWORD}}' ssh {{USERNAME}}@{{IP}}",
+          "description": "Connect via SSH providing the password non-interactively."
+        },
+        {
+          "title": "Execute command with password",
+          "command": "sshpass -p '{{PASSWORD}}' ssh {{USERNAME}}@{{IP}} 'whoami'",
+          "description": "Execute a remote command providing the password non-interactively."
+        },
+        {
+          "title": "SCP with password",
+          "command": "sshpass -p '{{PASSWORD}}' scp {{USERNAME}}@{{IP}}:{{REMOTE_FILE}} {{LOCAL_PATH}}",
+          "description": "Copy a file from the remote host using password authentication."
+        }
+      ]
+    },
+    {
+      "name": "ssh2john + John the Ripper",
+      "description": "Extract and crack SSH private key passphrases.",
+      "commands": [
+        {
+          "title": "Convert SSH key to John format",
+          "command": "ssh2john {{KEY_FILE}} > ssh_hash.txt",
+          "description": "Extract the hash from a passphrase-protected SSH private key."
+        },
+        {
+          "title": "Crack with John",
+          "command": "john ssh_hash.txt --wordlist={{WORDLIST}}",
+          "description": "Crack the SSH key passphrase using a wordlist."
+        },
+        {
+          "title": "Crack with John (show results)",
+          "command": "john ssh_hash.txt --show",
+          "description": "Display previously cracked SSH key passphrases."
+        }
+      ]
+    },
+    {
+      "name": "hydra — SSH Brute-force",
+      "description": "Fast network brute-forcer for SSH credentials.",
+      "commands": [
+        {
+          "title": "Single user with wordlist",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} ssh://{{IP}}",
+          "description": "Brute-force SSH password for a single user."
+        },
+        {
+          "title": "User list with wordlist",
+          "command": "hydra -L {{USERLIST}} -P {{WORDLIST}} ssh://{{IP}}",
+          "description": "Brute-force SSH with user and password lists."
+        },
+        {
+          "title": "Single credential check",
+          "command": "hydra -l '{{USERNAME}}' -p '{{PASSWORD}}' ssh://{{IP}}",
+          "description": "Verify a single SSH credential pair."
+        },
+        {
+          "title": "Specific port with threads",
+          "command": "hydra -l '{{USERNAME}}' -P {{WORDLIST}} ssh://{{IP}} -s {{PORT}} -t 4 -V",
+          "description": "Brute-force on a specific port with 4 threads and verbose output."
+        }
+      ]
+    },
+    {
+      "name": "NetExec (nxc) — SSH",
+      "description": "SSH credential validation and command execution via NetExec.",
+      "commands": [
+        {
+          "title": "Authenticate with password",
+          "command": "nxc ssh {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}'",
+          "description": "Validate SSH credentials."
+        },
+        {
+          "title": "Authenticate with key",
+          "command": "nxc ssh {{IP}} -u '{{USERNAME}}' --key-file {{KEY_FILE}}",
+          "description": "Authenticate using an SSH private key."
+        },
+        {
+          "title": "Execute command",
+          "command": "nxc ssh {{IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' -x 'whoami'",
+          "description": "Execute a command via SSH."
+        },
+        {
+          "title": "Password spray",
+          "command": "nxc ssh {{IP}} -u {{USERLIST}} -p '{{PASSWORD}}' --continue-on-success",
+          "description": "Spray a password against multiple users via SSH."
+        }
+      ]
+    },
+    {
+      "name": "chisel — Tunneling",
+      "description": "Fast TCP/UDP tunnel over HTTP. Alternative to SSH tunneling when SSH is not available.",
+      "commands": [
+        {
+          "title": "Start chisel server (attacker)",
+          "command": "chisel server --reverse --port 8000",
+          "description": "Start the chisel server on the attacker machine."
+        },
+        {
+          "title": "Client — forward port",
+          "command": "chisel client {{TARGET_IP}}:8000 {{LOCAL_PORT}}:{{IP}}:{{REMOTE_PORT}}",
+          "description": "Forward a remote port to your local machine."
+        },
+        {
+          "title": "Client — reverse SOCKS proxy",
+          "command": "chisel client {{TARGET_IP}}:8000 R:socks",
+          "description": "Create a reverse SOCKS proxy through the target (use with proxychains)."
+        },
+        {
+          "title": "Client — reverse port forward",
+          "command": "chisel client {{TARGET_IP}}:8000 R:{{REMOTE_PORT}}:localhost:{{LOCAL_PORT}}",
+          "description": "Expose a local port on the remote server."
+        }
+      ]
+    }
+  ]
+}

